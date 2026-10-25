@@ -18,8 +18,7 @@ jobs:
         run: |
           git init -q src
           cd src
-          git -c http.extraheader="AUTHORIZATION: bearer $GH_TOKEN" \
-            fetch -q --depth 1 "https://github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git fetch -q --depth 1 "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q FETCH_HEAD
 
       - name: Build APK
