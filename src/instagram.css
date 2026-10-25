@@ -1,0 +1,8 @@
+/* Reels tab in the side/bottom navigation and on profiles */
+html.sb-ig a[href="/reels/"],
+html.sb-ig a[href$="/reels/"],
+/* Reels in the feed, explore grid and profile grid */
+html.sb-ig article:has(a[href*="/reel/"]),
+html.sb-ig a[href*="/reel/"] {
+  display: none !important;
+}

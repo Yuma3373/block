@@ -1,0 +1,32 @@
+/* Shelves and grids */
+html.sb-yt ytd-reel-shelf-renderer,
+html.sb-yt ytd-rich-shelf-renderer[is-shorts],
+html.sb-yt ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]),
+html.sb-yt ytd-rich-section-renderer:has(ytm-shorts-lockup-view-model),
+html.sb-yt ytd-rich-section-renderer:has(ytm-shorts-lockup-view-model-v2),
+html.sb-yt grid-shelf-view-model:has(ytm-shorts-lockup-view-model),
+html.sb-yt grid-shelf-view-model:has(ytm-shorts-lockup-view-model-v2),
+html.sb-yt ytm-shorts-lockup-view-model,
+html.sb-yt ytm-shorts-lockup-view-model-v2,
+/* Individual videos that link to /shorts/ */
+html.sb-yt ytd-video-renderer:has(a[href^="/shorts/"]),
+html.sb-yt ytd-grid-video-renderer:has(a[href^="/shorts/"]),
+html.sb-yt ytd-rich-item-renderer:has(a[href^="/shorts/"]),
+html.sb-yt ytd-compact-video-renderer:has(a[href^="/shorts/"]),
+html.sb-yt yt-lockup-view-model:has(a[href^="/shorts/"]),
+html.sb-yt ytd-notification-renderer:has(a[href^="/shorts/"]),
+/* Sidebar and channel tab */
+html.sb-yt ytd-guide-entry-renderer:has(a[title="Shorts"]),
+html.sb-yt ytd-mini-guide-entry-renderer[aria-label="Shorts"],
+html.sb-yt ytd-mini-guide-entry-renderer:has(a[title="Shorts"]),
+html.sb-yt yt-tab-shape[tab-title="Shorts"],
+/* m.youtube.com */
+html.sb-yt ytm-reel-shelf-renderer,
+html.sb-yt ytm-rich-section-renderer:has(ytm-shorts-lockup-view-model),
+html.sb-yt ytm-rich-section-renderer:has(ytm-shorts-lockup-view-model-v2),
+html.sb-yt ytm-pivot-bar-item-renderer:has(.pivot-shorts),
+html.sb-yt ytm-video-with-context-renderer:has(a[href^="/shorts/"]),
+html.sb-yt ytm-rich-item-renderer:has(a[href^="/shorts/"]),
+html.sb-yt .sb-hidden {
+  display: none !important;
+}

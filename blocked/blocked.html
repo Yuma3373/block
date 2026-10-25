@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>차단됨</title>
+  <style>
+    :root { --bg: #fafafa; --fg: #1a1a1a; --muted: #6b6b6b; --btn: #1a1a1a; --btn-fg: #fff; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #121212; --fg: #f1f1f1; --muted: #a0a0a0; --btn: #f1f1f1; --btn-fg: #121212; } }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
+           background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; text-align: center; }
+    h1 { font-size: 26px; margin: 0 0 8px; }
+    p { color: var(--muted); margin: 0 0 24px; }
+    .buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    a, button { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--btn); font: inherit; cursor: pointer; text-decoration: none; }
+    .primary { background: var(--btn); color: var(--btn-fg); }
+    .secondary { background: transparent; color: var(--fg); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="title">쇼츠는 차단되어 있어요</h1>
+    <p>잠깐 멈추고, 원래 하려던 일로 돌아가 볼까요?</p>
+    <div class="buttons">
+      <a id="home" class="primary" href="https://www.youtube.com/">홈으로</a>
+      <button id="back" class="secondary" type="button">뒤로 가기</button>
+    </div>
+  </main>
+  <script src="blocked.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>쇼츠·릴스 차단</h1>
+
+  <section>
+    <label class="row">
+      <span>YouTube 쇼츠 차단</span>
+      <input type="checkbox" id="youtube-enabled">
+    </label>
+    <label class="sub">
+      쇼츠 링크로 들어가면
+      <select id="youtube-action">
+        <option value="block">차단 화면 보여주기</option>
+        <option value="home">홈으로 보내기</option>
+        <option value="watch">일반 영상으로 보기</option>
+      </select>
+    </label>
+  </section>
+
+  <section>
+    <label class="row">
+      <span>Instagram 릴스 차단</span>
+      <input type="checkbox" id="instagram-enabled">
+    </label>
+    <label class="sub">
+      릴스 링크로 들어가면
+      <select id="instagram-action">
+        <option value="block">차단 화면 보여주기</option>
+        <option value="home">홈으로 보내기</option>
+      </select>
+    </label>
+  </section>
+
+  <p class="note">켜져 있으면 피드·검색·사이드바의 쇼츠/릴스가 모두 숨겨집니다.</p>
+
+  <script src="../src/settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

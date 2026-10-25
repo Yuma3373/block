@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Shorts & Reels Blocker",
+  "description": "유튜브 쇼츠와 인스타그램 릴스를 숨기고 차단합니다.",
+  "version": "1.0.0",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "쇼츠·릴스 차단",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*", "*://m.youtube.com/*", "*://youtube.com/*"],
+      "js": ["src/settings.js", "src/guard.js", "src/youtube.js"],
+      "css": ["src/youtube.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://www.instagram.com/*", "*://instagram.com/*"],
+      "js": ["src/settings.js", "src/guard.js", "src/instagram.js"],
+      "css": ["src/instagram.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked/blocked.html"],
+      "matches": ["*://*.youtube.com/*", "*://youtube.com/*", "*://*.instagram.com/*", "*://instagram.com/*"]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "shorts-reels-blocker@local",
+      "strict_min_version": "121.0"
+    }
+  }
+}
