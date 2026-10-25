@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#F6F4F1</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#1B1B1F</color>
+    <color name="muted">#6B6A70</color>
+    <color name="outline">#E7E3DE</color>
+    <color name="accent">#E5322D</color>
+    <color name="accent_container">#FDE8E6</color>
+    <color name="ok">#1E8E5A</color>
+    <color name="ok_container">#E2F4EA</color>
+    <color name="warn">#A35F00</color>
+    <color name="warn_container">#FFF0D9</color>
+    <color name="chart_bar">#ECE7E1</color>
+    <color name="youtube_tint">#E62117</color>
+    <color name="instagram_tint">#C13584</color>
+    <color name="launcher_bg">#E5322D</color>
+</resources>
