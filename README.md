@@ -27,8 +27,8 @@ Chrome · Edge · 네이버 웨일 · Firefox(PC / Android)에서 동작합니�
 
 ## 참고
 
-- 휴대폰의 **유튜브·인스타그램 앱**은 브라우저 확장으로 막을 수 없습니다. 휴대폰에서는 앱을 지우고
-  Firefox for Android(또는 확장을 지원하는 브라우저)에서 웹으로 접속하면 이 확장이 적용됩니다.
+- 휴대폰의 **유튜브·인스타그램 앱**은 [`android/`](android/README.md)의 안드로이드 앱으로 막을 수 있습니다.
+  휴대폰 웹(Firefox for Android 등)에서는 이 확장이 그대로 적용됩니다.
 - YouTube와 Instagram은 화면 구조를 자주 바꿉니다. 일부가 다시 보이기 시작하면
   `src/youtube.css`, `src/instagram.css`의 선택자를 고치면 됩니다.
 
