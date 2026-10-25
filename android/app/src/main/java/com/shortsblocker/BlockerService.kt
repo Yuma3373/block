@@ -25,6 +25,9 @@ class BlockerService : AccessibilityService() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val tabCover by lazy { TabCover(this) }
+    private val fakeBar by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) FakeTabBar(this) else null
+    }
     private val notice by lazy { BlockNotice(this) }
     private var evaluateScheduled = false
     private var lastBlockAt = 0L
@@ -43,7 +46,7 @@ class BlockerService : AccessibilityService() {
 
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
-        tabCover.hide()
+        hideTab()
         notice.hide()
         super.onDestroy()
     }
@@ -59,13 +62,13 @@ class BlockerService : AccessibilityService() {
         val root = rootInActiveWindow
         val target = root?.packageName?.toString()?.let(Target::forPackage)
         if (root == null || target == null || Prefs.isPaused(this)) {
-            tabCover.hide()
+            hideTab()
             coverColors.clear()
             return
         }
 
         if (Prefs.blocksPlayer(this, target) && isPlayerShowing(root, target)) {
-            tabCover.hide()
+            hideTab()
             // Give the back action time to take effect, then make sure it did.
             if (SystemClock.uptimeMillis() - lastBlockAt >= COOLDOWN_MS) block(target)
             schedule(COOLDOWN_MS)
@@ -73,9 +76,26 @@ class BlockerService : AccessibilityService() {
         }
 
         val tab = if (Prefs.hidesTab(this, target)) findTab(root, target) else null
-        if (tab == null) tabCover.hide() else coverTab(target, tab)
-        // An idle screen sends no events, so keep tracking the tab while it is covered.
-        if (tabCover.isShowing) schedule(POLL_MS)
+        val bar = fakeBar
+        val layout = if (tab != null && bar != null) findBar(tab) else null
+        if (tab == null) {
+            hideTab()
+        } else if (bar != null && layout != null) {
+            // Redraw the bar without the tab.
+            tabCover.hide()
+            bar.update(layout, root.windowId)
+        } else {
+            // Older Android, or a bar we cannot take apart: cover just the tab.
+            bar?.hide()
+            coverTab(target, boundsOf(tab))
+        }
+        // An idle screen sends no events, so keep tracking the tab while it is hidden.
+        if (tab != null) schedule(POLL_MS)
+    }
+
+    private fun hideTab() {
+        tabCover.hide()
+        fakeBar?.hide()
     }
 
     private fun block(target: Target) {
@@ -102,7 +122,7 @@ class BlockerService : AccessibilityService() {
         }
     }
 
-    private fun findTab(root: AccessibilityNodeInfo, target: Target): Rect? {
+    private fun findTab(root: AccessibilityNodeInfo, target: Target): AccessibilityNodeInfo? {
         val metrics = resources.displayMetrics
         val byId = target.tabViewIds.flatMap { root.findAccessibilityNodeInfosByViewId("${target.packageName}:id/$it") }
         // findAccessibilityNodeInfosByText matches substrings, so keep exact labels only.
@@ -120,10 +140,45 @@ class BlockerService : AccessibilityService() {
             val inBottomBar = bounds.top > metrics.heightPixels * 0.7f &&
                 bounds.height() < metrics.heightPixels * 0.15f &&
                 bounds.width() < metrics.widthPixels / 2
-            if (tab.isVisibleToUser && !bounds.isEmpty && inBottomBar && !keyboardOverlaps(bounds)) return Rect(bounds)
+            if (tab.isVisibleToUser && !bounds.isEmpty && inBottomBar && !keyboardOverlaps(bounds)) return tab
         }
         return null
     }
+
+    /** Finds the tab's siblings in the bottom bar, walking up past wrapper views. */
+    private fun findBar(tab: AccessibilityNodeInfo): BarLayout? {
+        val tabBounds = boundsOf(tab)
+        var container = tab.parent
+        repeat(3) {
+            val c = container ?: return null
+            val tabs = tabsIn(c, tabBounds)
+            if (tabs.size >= MIN_BAR_TABS && tabs.any { boundsOf(it) == tabBounds }) {
+                val others = tabs.filter { boundsOf(it) != tabBounds }
+                val bar = Rect(tabBounds)
+                tabs.forEach { bar.union(boundsOf(it)) }
+                // Take in the bar's own padding and divider when the container is just the bar.
+                val containerBounds = boundsOf(c)
+                if (containerBounds.height() <= bar.height() * 1.5f && containerBounds.contains(bar)) bar.set(containerBounds)
+                return BarLayout(bar, others.map(::boundsOf), others)
+            }
+            container = c.parent
+        }
+        return null
+    }
+
+    // Clickable children, or grandchildren for tabs wrapped in a layout, in the tab's row.
+    private fun tabsIn(container: AccessibilityNodeInfo, tabBounds: Rect): List<AccessibilityNodeInfo> =
+        children(container)
+            .flatMap { child -> if (child.isClickable) listOf(child) else children(child).filter { it.isClickable } }
+            .filter { node ->
+                val r = boundsOf(node)
+                node.isVisibleToUser && !r.isEmpty && kotlin.math.abs(r.centerY() - tabBounds.centerY()) < tabBounds.height() / 2
+            }
+            .sortedBy { boundsOf(it).left }
+
+    private fun children(node: AccessibilityNodeInfo) = (0 until node.childCount).mapNotNull(node::getChild)
+
+    private fun boundsOf(node: AccessibilityNodeInfo) = Rect().also(node::getBoundsInScreen)
 
     private fun clickableSelfOrAncestor(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         var current: AccessibilityNodeInfo? = node
@@ -193,5 +248,6 @@ class BlockerService : AccessibilityService() {
         const val COOLDOWN_MS = 1200L
         const val PLAYER_MIN_SCREEN_FRACTION = 0.6f
         const val SAMPLE_INSET_PX = 4
+        const val MIN_BAR_TABS = 3
     }
 }
