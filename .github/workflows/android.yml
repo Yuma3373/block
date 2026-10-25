@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: android
@@ -19,7 +21,16 @@ jobs:
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew assembleRelease --no-daemon
+      - run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/shorts-reels-blocker.apk
       - uses: actions/upload-artifact@v4
         with:
           name: shorts-reels-blocker-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/apk/release/shorts-reels-blocker.apk
+      # A release gives a direct .apk link that opens on a phone, unlike zipped artifacts.
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-build-${{ github.run_number }}
+          name: 쇼츠·릴스 차단 APK (빌드 ${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          body: 휴대폰에서 아래 shorts-reels-blocker.apk를 눌러 내려받아 설치하세요.
+          files: android/app/build/outputs/apk/release/shorts-reels-blocker.apk
