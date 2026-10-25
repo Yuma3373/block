@@ -1,5 +1,6 @@
 name: Android APK
 
+# Shell steps only: the repository allows no third-party actions.
 on:
   push:
     paths: ["android/**", ".github/workflows/android.yml"]
@@ -10,27 +11,30 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    defaults:
-      run:
-        working-directory: android
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew assembleRelease --no-daemon
-      - run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/shorts-reels-blocker.apk
-      - uses: actions/upload-artifact@v4
-        with:
-          name: shorts-reels-blocker-apk
-          path: android/app/build/outputs/apk/release/shorts-reels-blocker.apk
-      # A release gives a direct .apk link that opens on a phone, unlike zipped artifacts.
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: apk-build-${{ github.run_number }}
-          name: 쇼츠·릴스 차단 APK (빌드 ${{ github.run_number }})
-          target_commitish: ${{ github.sha }}
-          body: 휴대폰에서 아래 shorts-reels-blocker.apk를 눌러 내려받아 설치하세요.
-          files: android/app/build/outputs/apk/release/shorts-reels-blocker.apk
+      - name: Check out
+        run: |
+          git init -q src
+          cd src
+          git -c http.extraheader="AUTHORIZATION: bearer $GH_TOKEN" \
+            fetch -q --depth 1 "https://github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q FETCH_HEAD
+
+      - name: Build APK
+        working-directory: src/android
+        run: |
+          export JAVA_HOME="${JAVA_HOME_17_X64:-$JAVA_HOME}"
+          ./gradlew assembleRelease --no-daemon
+          mv app/build/outputs/apk/release/app-release.apk shorts-reels-blocker.apk
+
+      # A release gives a direct .apk link that opens on a phone.
+      - name: Publish release
+        working-directory: src/android
+        run: |
+          gh release create "apk-build-$GITHUB_RUN_NUMBER" shorts-reels-blocker.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "쇼츠·릴스 차단 APK (빌드 $GITHUB_RUN_NUMBER)" \
+            --notes "휴대폰에서 아래 shorts-reels-blocker.apk를 눌러 내려받아 설치하세요."
