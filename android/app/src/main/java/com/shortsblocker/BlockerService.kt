@@ -3,6 +3,7 @@ package com.shortsblocker
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityService.ScreenshotResult
 import android.accessibilityservice.AccessibilityService.TakeScreenshotCallback
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Rect
@@ -40,13 +41,35 @@ class BlockerService : AccessibilityService() {
         evaluate()
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) = schedule(EVENT_DELAY_MS)
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        // Finishes the tutorial: bring the user back from Settings straight away.
+        if (!Prefs.isOnboarded(this)) {
+            startActivity(
+                Intent(this, OnboardingActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT),
+            )
+        }
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        when (event.eventType) {
+            // A new screen: check right away instead of waiting out the throttle.
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED, AccessibilityEvent.TYPE_WINDOWS_CHANGED -> {
+                handler.removeCallbacks(evaluateRunnable)
+                evaluateScheduled = false
+                schedule(0)
+            }
+            else -> schedule(EVENT_DELAY_MS)
+        }
+    }
 
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
         hideTab()
+        fakeBar?.release()
         notice.hide()
         super.onDestroy()
     }
@@ -61,7 +84,7 @@ class BlockerService : AccessibilityService() {
     private fun evaluate() {
         val root = rootInActiveWindow
         val target = root?.packageName?.toString()?.let(Target::forPackage)
-        if (root == null || target == null || Prefs.isPaused(this)) {
+        if (root == null || target == null || !Prefs.hasConsented(this) || Prefs.isPaused(this)) {
             hideTab()
             coverColors.clear()
             return
@@ -243,8 +266,8 @@ class BlockerService : AccessibilityService() {
         (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
     private companion object {
-        const val EVENT_DELAY_MS = 150L
-        const val POLL_MS = 400L
+        const val EVENT_DELAY_MS = 60L
+        const val POLL_MS = 300L
         const val COOLDOWN_MS = 1200L
         const val PLAYER_MIN_SCREEN_FRACTION = 0.6f
         const val SAMPLE_INSET_PX = 4

@@ -58,6 +58,8 @@ class FakeTabBar(private val service: AccessibilityService) {
 
     private var attached = false
     private var layout: BarLayout? = null
+    // Geometry of the frame the view holds; kept after hiding so re-entering the app is instant.
+    private var frameLayout: BarLayout? = null
     private var windowId = -1
     private var capturing = false
     private var lastCaptureAt = 0L
@@ -68,6 +70,8 @@ class FakeTabBar(private val service: AccessibilityService) {
         val moved = !newLayout.sameGeometry(layout) || appWindowId != windowId
         layout = newLayout
         windowId = appWindowId
+        // Show the last frame immediately and let the capture below freshen it.
+        if (!attached && newLayout.sameGeometry(frameLayout)) attach(frameLayout!!)
         if (moved || SystemClock.uptimeMillis() - lastCaptureAt > REFRESH_MS) capture()
     }
 
@@ -76,7 +80,12 @@ class FakeTabBar(private val service: AccessibilityService) {
         layout = null
         if (attached) windowManager.removeView(view)
         attached = false
+    }
+
+    fun release() {
+        hide()
         view.clear()
+        frameLayout = null
     }
 
     private fun capture() {
@@ -107,6 +116,11 @@ class FakeTabBar(private val service: AccessibilityService) {
 
     private fun show(captured: BarLayout, frame: Bitmap, origin: Point) {
         view.setFrame(captured, frame, origin)
+        frameLayout = captured
+        attach(captured)
+    }
+
+    private fun attach(captured: BarLayout) {
         params.x = captured.bar.left
         params.y = captured.bar.top
         params.width = captured.bar.width()
@@ -132,8 +146,8 @@ class FakeTabBar(private val service: AccessibilityService) {
     }
 
     private companion object {
-        const val REFRESH_MS = 1500L
-        val TAP_REFRESH_DELAYS_MS = listOf(200L, 600L)
+        const val REFRESH_MS = 700L
+        val TAP_REFRESH_DELAYS_MS = listOf(120L, 400L)
     }
 }
 

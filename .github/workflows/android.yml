@@ -21,19 +21,40 @@ jobs:
           git fetch -q --depth 1 "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q FETCH_HEAD
 
-      - name: Build APK
+      # Signed with the Play upload key when the RELEASE_* secrets exist,
+      # otherwise with the shared test key (fine for installing, not for Play).
+      - name: Build APK and AAB
         working-directory: src/android
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           export JAVA_HOME="${JAVA_HOME_17_X64:-$JAVA_HOME}"
-          ./gradlew assembleRelease --no-daemon
-          mv app/build/outputs/apk/release/app-release.apk shorts-reels-blocker.apk
+          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            export RELEASE_KEYSTORE_PATH="$RUNNER_TEMP/release.jks"
+            echo "SIGNING=release" >> "$GITHUB_ENV"
+          else
+            echo "SIGNING=test" >> "$GITHUB_ENV"
+          fi
+          ./gradlew assembleRelease bundleRelease --no-daemon
+          mkdir -p out
+          mv app/build/outputs/apk/release/app-release.apk out/shorts-reels-blocker.apk
+          mv app/build/outputs/bundle/release/app-release.aab out/shorts-reels-blocker.aab
 
       # A release gives a direct .apk link that opens on a phone.
       - name: Publish release
         working-directory: src/android
         run: |
-          gh release create "apk-build-$GITHUB_RUN_NUMBER" shorts-reels-blocker.apk \
+          if [ "$SIGNING" = release ]; then
+            notes="정식 서명 빌드입니다. 휴대폰 설치는 .apk, Play Console 업로드는 .aab를 쓰세요."
+          else
+            notes="테스트 서명 빌드입니다. 휴대폰에서 아래 shorts-reels-blocker.apk를 눌러 설치하세요. (Play 업로드용 아님)"
+          fi
+          gh release create "apk-build-$GITHUB_RUN_NUMBER" out/shorts-reels-blocker.apk out/shorts-reels-blocker.aab \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
-            --title "쇼츠·릴스 차단 APK (빌드 $GITHUB_RUN_NUMBER)" \
-            --notes "휴대폰에서 아래 shorts-reels-blocker.apk를 눌러 내려받아 설치하세요."
+            --title "쇼츠·릴스 차단 (빌드 $GITHUB_RUN_NUMBER, $SIGNING)" \
+            --notes "$notes"

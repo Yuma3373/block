@@ -1,15 +1,10 @@
 package com.shortsblocker
 
-import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Intent
 import android.content.res.ColorStateList
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.PowerManager
-import android.provider.Settings
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -33,20 +28,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!Prefs.isOnboarded(this)) {
+            startActivity(Intent(this, OnboardingActivity::class.java))
+            finish()
+            return
+        }
         setContentView(R.layout.activity_main)
 
-        findViewById<MaterialButton>(R.id.open_accessibility).setOnClickListener {
-            launch(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        findViewById<MaterialButton>(R.id.hero_fix).setOnClickListener {
+            startActivity(OnboardingActivity.permissionIntent(this))
         }
-        findViewById<MaterialButton>(R.id.open_app_info).setOnClickListener {
-            launch(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null)))
+        findViewById<MaterialButton>(R.id.help_tutorial).setOnClickListener {
+            startActivity(Intent(this, OnboardingActivity::class.java))
         }
-        findViewById<MaterialButton>(R.id.open_battery).setOnClickListener {
-            launch(
-                Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.fromParts("package", packageName, null)),
-                fallback = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS),
-            )
-        }
+        findViewById<MaterialButton>(R.id.help_app_info).setOnClickListener { SettingsLinks.openAppInfo(this) }
 
         bindSwitch(R.id.youtube_hide_tab, { Prefs.hidesTab(this, Target.YOUTUBE) }) { Prefs.setHidesTab(this, Target.YOUTUBE, it) }
         bindSwitch(R.id.youtube_block, { Prefs.blocksPlayer(this, Target.YOUTUBE) }) { Prefs.setBlocksPlayer(this, Target.YOUTUBE, it) }
@@ -85,8 +80,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun render() {
-        val serviceOn = isServiceEnabled()
-        val batteryOk = getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName)
+        val serviceOn = SettingsLinks.isServiceEnabled(this)
         val paused = Prefs.isPaused(this)
 
         // Status
@@ -108,11 +102,7 @@ class MainActivity : AppCompatActivity() {
             else -> getString(R.string.status_on_body)
         }
 
-        // Setup
-        findViewById<View>(R.id.setup).visibility = if (serviceOn && batteryOk) View.GONE else View.VISIBLE
-        renderStep(R.id.step1_badge, R.id.open_accessibility, "1", serviceOn)
-        renderStep(R.id.step2_badge, R.id.open_battery, "2", batteryOk)
-        findViewById<View>(R.id.step1_denied).visibility = if (serviceOn) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.hero_fix).visibility = if (serviceOn) View.GONE else View.VISIBLE
 
         // Stats
         val week = Prefs.lastSevenDays(this)
@@ -126,15 +116,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.pause_resume).visibility = if (paused) View.VISIBLE else View.GONE
     }
 
-    private fun renderStep(badgeId: Int, buttonId: Int, number: String, done: Boolean) {
-        findViewById<TextView>(badgeId).apply {
-            text = if (done) "✓" else number
-            setTextColor(getColor(if (done) R.color.surface else R.color.on_surface))
-            backgroundTintList = ColorStateList.valueOf(getColor(if (done) R.color.ok else R.color.outline))
-        }
-        findViewById<View>(buttonId).visibility = if (done) View.INVISIBLE else View.VISIBLE
-    }
-
     private fun minutesLeft() =
         ceil((Prefs.pausedUntil(this) - System.currentTimeMillis()) / 60_000.0).toInt().coerceAtLeast(1)
 
@@ -143,21 +124,6 @@ class MainActivity : AppCompatActivity() {
             isChecked = get()
             setOnCheckedChangeListener { _, checked -> set(checked) }
         }
-    }
-
-    private fun launch(intent: Intent, fallback: Intent? = null) {
-        try {
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            fallback?.let { runCatching { startActivity(it) } }
-        }
-    }
-
-    private fun isServiceEnabled(): Boolean {
-        val enabled = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-            ?: return false
-        val me = ComponentName(this, BlockerService::class.java)
-        return enabled.split(':').any { ComponentName.unflattenFromString(it) == me }
     }
 
     private enum class Tone(val strong: Int, val container: Int) {

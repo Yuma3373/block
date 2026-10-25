@@ -3,23 +3,49 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+// Release signing comes from CI secrets; without them the shared test key is used.
+val releaseKeystore: String? = System.getenv("RELEASE_KEYSTORE_PATH")
+
 android {
     namespace = "com.shortsblocker"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.shortsblocker"
+        applicationId = "io.github.yuma3373.shortsblocker"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 2
-        versionName = "2.0.0"
+        targetSdk = 36
+        // Play requires an ever-increasing version code; CI run numbers provide one.
+        versionCode = 100 + (System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 0)
+        versionName = "2.1.0"
+    }
+
+    signingConfigs {
+        // Committed on purpose: test builds share one key, so they install over each other.
+        create("test") {
+            storeFile = file("test.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = file(releaseKeystore)
+                storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("test")
+        }
         release {
-            isMinifyEnabled = false
-            // Signed with the debug key so the APK installs without extra setup.
-            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            signingConfig = signingConfigs.getByName(if (releaseKeystore != null) "release" else "test")
         }
     }
 

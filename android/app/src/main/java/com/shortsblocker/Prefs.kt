@@ -12,8 +12,19 @@ object Prefs {
     private const val KEY_PAUSED_UNTIL = "paused_until"
     private const val COUNT_PREFIX = "count_"
     private const val HISTORY_DAYS = 14L
+    private const val KEY_CONSENTED = "consented"
+    private const val KEY_ONBOARDED = "onboarded"
 
     private fun prefs(context: Context) = context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
+
+    /** The user accepted the accessibility disclosure; nothing is read before that. */
+    fun hasConsented(context: Context) = prefs(context).getBoolean(KEY_CONSENTED, false)
+
+    fun setConsented(context: Context) = prefs(context).edit().putBoolean(KEY_CONSENTED, true).apply()
+
+    fun isOnboarded(context: Context) = prefs(context).getBoolean(KEY_ONBOARDED, false)
+
+    fun setOnboarded(context: Context) = prefs(context).edit().putBoolean(KEY_ONBOARDED, true).apply()
 
     // Version 1 stored the player switch under the bare target name.
     fun blocksPlayer(context: Context, target: Target): Boolean {

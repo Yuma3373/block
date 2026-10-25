@@ -6,5 +6,6 @@
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
     android:description="@string/service_description"
-    android:notificationTimeout="100"
+    android:isAccessibilityTool="false"
+    android:notificationTimeout="50"
     android:packageNames="com.google.android.youtube,com.instagram.android" />

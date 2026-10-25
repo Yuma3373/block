@@ -7,19 +7,11 @@
     <string name="status_on_title">보호 중</string>
     <string name="status_on_body">쇼츠·릴스 탭이 숨겨지고, 열려도 바로 닫혀요</string>
     <string name="status_off_title">보호가 꺼져 있어요</string>
-    <string name="status_off_body">아래 단계를 따라 한 번만 켜 주세요</string>
+    <string name="status_off_body">접근성 스위치가 꺼져 있어요</string>
     <string name="status_paused_title">잠깐 쉬는 중</string>
     <string name="status_paused_body">%d분 뒤 다시 막아요</string>
 
-    <string name="setup_title">시작하기</string>
-    <string name="setup_step1">접근성 권한 켜기</string>
-    <string name="setup_step1_body">설정 → 접근성 → 설치된 앱 → 쇼츠·릴스 차단</string>
-    <string name="setup_step1_denied">‘액세스가 거부됨’이 뜨면: 앱 정보 → 오른쪽 위 ⋮ → ‘제한된 설정 허용’ 후 다시 켜 주세요.</string>
-    <string name="setup_step2">배터리 사용 제한 없음</string>
-    <string name="setup_step2_body">휴대폰이 차단을 몰래 끄지 않게 해요</string>
-    <string name="open">열기</string>
     <string name="open_app_info">앱 정보 열기</string>
-    <string name="allow">허용</string>
 
     <string name="stats_title">이번 주 기록</string>
     <string name="stats_today">오늘</string>
@@ -52,4 +44,47 @@
     <string name="notice_youtube">쇼츠는 차단되어 있어요</string>
     <string name="notice_instagram">릴스는 차단되어 있어요</string>
     <string name="notice_count">오늘 %d번째로 막았어요</string>
+
+    <!-- Tutorial -->
+    <string name="ob_welcome_title">쇼츠·릴스 없이\n유튜브·인스타 쓰기</string>
+    <string name="ob_welcome_body">보고 싶은 영상과 친구 소식은 그대로,\n끝없이 넘기게 되는 짧은 영상만 막아 드려요.</string>
+    <string name="ob_point1_title">쇼츠·릴스 칸이 사라져요</string>
+    <string name="ob_point1_body">아래 메뉴에서 버튼이 없어진 것처럼 보여요</string>
+    <string name="ob_point2_title">열려도 바로 닫혀요</string>
+    <string name="ob_point2_body">추천이나 공유 링크로 들어가도 막아 줘요</string>
+    <string name="ob_point3_title">필요할 땐 잠깐 쉬기</string>
+    <string name="ob_point3_body">5·15·30분만 풀었다가 다시 막아요</string>
+    <string name="ob_welcome_next">시작하기</string>
+
+    <string name="ob_consent_title">시작 전에 알려드려요</string>
+    <string name="ob_consent_intro">이 앱은 안드로이드 <b>접근성 서비스</b>를 사용해요.\n어떤 정보를 어떻게 쓰는지 확인해 주세요.</string>
+    <string name="ob_consent_what_title">읽는 정보</string>
+    <string name="ob_consent_what_body">YouTube·Instagram 앱이 화면에 띄운 구성 정보(버튼 이름·위치)와 아래 메뉴바 이미지. 다른 앱은 읽지 않아요.</string>
+    <string name="ob_consent_why_title">쓰는 곳</string>
+    <string name="ob_consent_why_body">쇼츠·릴스 화면을 알아보고 닫기, 메뉴바에서 쇼츠·릴스 버튼 숨기기에만 써요.</string>
+    <string name="ob_consent_where_title">저장·전송 안 함</string>
+    <string name="ob_consent_where_body">모든 처리는 휴대폰 안에서만 일어나고 바로 버려져요. 인터넷 권한이 없어 밖으로 보낼 수도 없어요.</string>
+    <string name="ob_consent_footer">동의하지 않으면 접근성 서비스를 쓰지 않으며, 언제든 설정에서 끌 수 있어요.</string>
+    <string name="ob_consent_accept">동의하고 계속</string>
+    <string name="ob_consent_decline">동의하지 않음</string>
+
+    <string name="ob_perm_title">마지막 한 단계예요</string>
+    <string name="ob_perm_body">아래 버튼을 누르고 스위치 하나만 켜 주세요.</string>
+    <string name="ob_perm_step1">‘설정 열기’를 눌러요</string>
+    <string name="ob_perm_step2">‘쇼츠·릴스 차단’을 눌러 스위치를 켜요\n(목록이 보이면 ‘설치된 앱’ 안에 있어요)</string>
+    <string name="ob_perm_step3">‘허용’을 누르면 자동으로 이 화면으로 돌아와요</string>
+    <string name="ob_perm_open">설정 열기</string>
+    <string name="ob_perm_help_toggle">‘액세스가 거부됨’이라고 떠요</string>
+    <string name="ob_perm_help_body">휴대폰이 스토어 밖에서 받은 앱을 한 번 확인하는 거예요.\n\n1. 아래 ‘앱 정보 열기’를 눌러요\n2. 오른쪽 위 ⋮ 를 눌러요\n3. ‘제한된 설정 허용’을 누르고 확인해요\n4. 이 화면으로 돌아와 ‘설정 열기’를 다시 눌러요</string>
+
+    <string name="ob_done_title">준비 완료!</string>
+    <string name="ob_done_body">이제 유튜브나 인스타그램을 열어 보세요.\n쇼츠·릴스 칸이 사라져 있을 거예요.</string>
+    <string name="ob_done_youtube">YouTube 열어 보기</string>
+    <string name="ob_done_finish">설정 화면으로</string>
+
+    <!-- Main screen -->
+    <string name="status_fix">다시 켜기</string>
+    <string name="help_title">도움말</string>
+    <string name="help_body">차단이 저절로 꺼진다면 앱 정보 → 배터리에서 ‘제한 없음’으로 바꿔 주세요. 유튜브·인스타가 업데이트된 뒤 잘 안 막히면 앱을 업데이트해 주세요.</string>
+    <string name="help_tutorial">튜토리얼 다시 보기</string>
 </resources>
