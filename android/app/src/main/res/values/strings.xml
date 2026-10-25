@@ -35,7 +35,7 @@
     <string name="instagram_sub">릴스</string>
     <string name="instagram_hide_tab">릴스 탭 숨기기</string>
     <string name="instagram_block">릴스 화면 차단</string>
-    <string name="hide_tab_body">아래 메뉴의 버튼을 가려서 눌러도 반응하지 않아요</string>
+    <string name="hide_tab_body">아래 메뉴에서 버튼을 없애고 나머지 버튼을 고르게 다시 놓아요</string>
     <string name="block_body">링크·추천 등으로 열려도 바로 빠져나와요</string>
 
     <string name="action_title">쇼츠·릴스가 열리면</string>
